@@ -1,0 +1,71 @@
+# Docker Compose for local development
+# Uses different ports to avoid conflicts with production
+
+services:
+  # Development Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: devcost-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-devcost_ai_dev}
+      POSTGRES_USER: ${DB_USER:-devcost}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-devcost123}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - devcost-network
+
+  # Development Redis
+  redis:
+    image: redis:7-alpine
+    container_name: devcost-redis-dev
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - devcost-network
+
+  # Development Backend (with hot reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: devcost-backend-dev
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-devcost_ai_dev}
+      DB_USER: ${DB_USER:-devcost}
+      DB_PASSWORD: ${DB_PASSWORD:-devcost123}
+      DB_SSLMODE: disable
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SERVER_PORT: ${SERVER_PORT:-8081}
+      GIN_MODE: ${GIN_MODE:-debug}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    ports:
+      - "${SERVER_PORT:-8081}:8080"
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+    networks:
+      - devcost-network
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  devcost-network:
+    driver: bridge
