@@ -1,0 +1,23 @@
+# Override file for local development customizations
+# This file allows developers to override docker-compose.yml settings
+# without modifying the main file
+
+services:
+  backend:
+    # Mount source code for hot reload in development
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+    environment:
+      GIN_MODE: debug
+      LOG_LEVEL: debug
+    
+  postgres:
+    # Use different port for development to avoid conflicts
+    ports:
+      - "5433:5432"
+    
+  redis:
+    # Use different port for development
+    ports:
+      - "6380:6379"
