@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.next
+.env.local
+.env
+.DS_Store
+*.pem
+.git
+.gitignore
+README.md
+.eslintrc.json
