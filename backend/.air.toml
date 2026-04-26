@@ -1,0 +1,43 @@
+# Air configuration for hot reload in development
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  # Just plain old shell command. You could use `make` too
+  cmd = "go build -o ./tmp/main ."
+  # Binary file yields from `cmd`.
+  bin = "tmp/main"
+  # Add additional build arguments here
+  args = []
+
+[watch]
+  # Watch these filename extensions.
+  extensions = ["go", "tpl", "tmpl", "html"]
+  # Watch these directories.
+  dirs = ["cmd", "internal", "pkg", "migrations"]
+  # Watch these directories recursively.
+  recursive = true
+  # Ignore files for matching
+  ignore = ["tmp/*", "vendor/*", "*.log", ".env*"]
+
+[log]
+  # Show log time
+  time = true
+  # Only show main log (silences watcher, build, runner)
+  main_only = false
+
+[color]
+  # Customize each part's color. If no color found, use the raw app log.
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+  # Delete tmp directory on exit
+  clean_on_exit = false
+  # Send interrupt signal before kill process (windows doesn't support this feature)
+  send_interrupt = false
+  # Delay before send kill process
+  kill_delay = "0s"
